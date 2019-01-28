@@ -1,39 +1,38 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Jan 11 14:58:17 2019
-
-@author: nahas
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jan  9 12:18:10 2019
-
-@author: mag
-"""
 import sqlite3
 import json
 from pprint import pprint 
 
-#connects to db
-conn = sqlite3.connect("phonebook_database.db")
 
-#link to db with cursor
-c = conn.cursor()
+def get_db(db_name):
+    try:
+        if db_name != "phonebook_database.db":
+            raise OSError('Wrong database name!')
+        #connects to db
+        conn = sqlite3.connect(db_name)
+        #link to db with cursor
+        c = conn.cursor()
+        print('Yay! A none is not returned')
+        
+        return c #conn
+    except Exception as e:
+        print(e)
+        return None
 
-def create_table():
+def create_table(db_name):
+    c, conn = get_db(db_name)
     c.execute("DROP TABLE IF EXISTS phonebook_personal")
     c.execute("CREATE TABLE phonebook_personal(first_name TEXT, last_name TEXT, addressline1 TEXT, addressline2 TEXT, addressline3 TEXT, postcode TEXT, country TEXT, telephone_number REAL)")
     conn.commit()
     
-create_table()
+#create_table()
 
 #"with" creates a temporary resource access and closes it after "with" ends
 with open("mock_data_people.json") as f:
     data = json.load(f)
 #pprint(data)
     
-def personal_data_entry():
+def personal_data_entry(db_name):
+    c, conn = get_db(db_name)
     for item in data:
 #        method1
 #        values_list = list(item.values())
@@ -50,19 +49,20 @@ def personal_data_entry():
 
 #remove data from db in order to avoid duplicate
 #c.execute("DELETE FROM phonebook_personal")        
-personal_data_entry()
+#personal_data_entry()
 
 
-def addColumnsToDb():
+def addColumnsToDb(db_name):
+    c, conn = get_db(db_name)
     c.execute('''ALTER TABLE phonebook_personal ADD x_coordinate REAL''')
     c.execute('''ALTER TABLE phonebook_personal ADD y_coordinate REAL''')
     conn.commit()
     
-addColumnsToDb()
+#addColumnsToDb()
 
 
-
-#closing cursor
-c.close()
-#closing connection to db
-conn.close()
+#c, conn = get_db()
+##closing cursor
+#c.close()
+##closing connection to db
+#conn.close()
